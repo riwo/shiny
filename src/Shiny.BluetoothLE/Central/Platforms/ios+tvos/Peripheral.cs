@@ -9,7 +9,7 @@ using Foundation;
 
 namespace Shiny.BluetoothLE.Central
 {
-    public class Peripheral : AbstractPeripheral
+    public class Peripheral : AbstractPeripheral, IL2CapSupport
     {
         readonly CentralContext context;
         IDisposable autoReconnectSub;
@@ -197,6 +197,22 @@ namespace Shiny.BluetoothLE.Central
 
 
         public override string ToString() => this.Uuid.ToString();
+
+        public IObservable<IChannel> OpenChannel(int psm) => Observable.Create<IChannel>(ob =>
+        {
+            var handler = new EventHandler<CBPeripheralOpenL2CapChannelEventArgs>((sender, args) =>
+            {
+                if (args.Error == null)
+                    ob.Respond(new L2CapChannel(args.Channel));
+                else
+                    ob.OnError(new Exception(args.Error.LocalizedDescription));
+            });
+            this.Native.DidOpenL2CapChannel += handler;
+            this.Native.OpenL2CapChannel((ushort) psm);
+
+            return () => this.Native.DidOpenL2CapChannel -= handler;
+        });
+
         public override int GetHashCode() => this.Native.GetHashCode();
         public override bool Equals(object obj)
         {

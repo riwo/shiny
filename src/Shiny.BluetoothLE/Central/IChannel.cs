@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 
 namespace Shiny.BluetoothLE.Central
@@ -8,7 +9,6 @@ namespace Shiny.BluetoothLE.Central
         Guid PeerUuid { get; }
         int Psm { get; } //=> 0x25;
 
-        IStream InputStream { get; }
-        IStream OutputStream { get; }
+        Stream Stream { get; }
     }
 }
