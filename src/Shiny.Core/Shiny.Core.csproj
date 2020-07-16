@@ -10,7 +10,64 @@
     <ItemGroup>
         <None Include="readme.txt" pack="true" PackagePath="." />
         <Compile Remove="**\Platforms\**\*.cs" />
+        <Compile Remove="IO\Platforms\Tizen\**" />
+        <Compile Remove="IO\Platforms\Uwp\**" />
+        <Compile Remove="Jobs\Platforms\Tizen\**" />
+        <Compile Remove="Jobs\Platforms\Uwp\**" />
+        <Compile Remove="Jobs\Platforms\watchOS\**" />
+        <Compile Remove="Net\Platforms\Tizen\**" />
+        <Compile Remove="Net\Platforms\Uwp\**" />
+        <Compile Remove="Platforms\macOS\**" />
+        <Compile Remove="Platforms\Tizen\**" />
+        <Compile Remove="Platforms\tvOS\**" />
+        <Compile Remove="Platforms\Uwp\**" />
+        <Compile Remove="Platforms\watchOS\**" />
+        <Compile Remove="Power\Platforms\macOS\**" />
+        <Compile Remove="Power\Platforms\Tizen\**" />
+        <Compile Remove="Power\Platforms\tvOS\**" />
+        <Compile Remove="Power\Platforms\Uwp\**" />
+        <Compile Remove="Power\Platforms\watchOS\**" />
+        <Compile Remove="Settings\Platforms\Tizen\**" />
+        <Compile Remove="Settings\Platforms\Uwp\**" />
         <None Include="**\Platforms\**\*.cs" />
+        <EmbeddedResource Remove="IO\Platforms\Tizen\**" />
+        <EmbeddedResource Remove="IO\Platforms\Uwp\**" />
+        <EmbeddedResource Remove="Jobs\Platforms\Tizen\**" />
+        <EmbeddedResource Remove="Jobs\Platforms\Uwp\**" />
+        <EmbeddedResource Remove="Jobs\Platforms\watchOS\**" />
+        <EmbeddedResource Remove="Net\Platforms\Tizen\**" />
+        <EmbeddedResource Remove="Net\Platforms\Uwp\**" />
+        <EmbeddedResource Remove="Platforms\macOS\**" />
+        <EmbeddedResource Remove="Platforms\Tizen\**" />
+        <EmbeddedResource Remove="Platforms\tvOS\**" />
+        <EmbeddedResource Remove="Platforms\Uwp\**" />
+        <EmbeddedResource Remove="Platforms\watchOS\**" />
+        <EmbeddedResource Remove="Power\Platforms\macOS\**" />
+        <EmbeddedResource Remove="Power\Platforms\Tizen\**" />
+        <EmbeddedResource Remove="Power\Platforms\tvOS\**" />
+        <EmbeddedResource Remove="Power\Platforms\Uwp\**" />
+        <EmbeddedResource Remove="Power\Platforms\watchOS\**" />
+        <EmbeddedResource Remove="Settings\Platforms\Tizen\**" />
+        <EmbeddedResource Remove="Settings\Platforms\Uwp\**" />
+        <None Remove="IO\Platforms\Tizen\**" />
+        <None Remove="IO\Platforms\Uwp\**" />
+        <None Remove="Jobs\Platforms\Tizen\**" />
+        <None Remove="Jobs\Platforms\Uwp\**" />
+        <None Remove="Jobs\Platforms\watchOS\**" />
+        <None Remove="Net\Platforms\Tizen\**" />
+        <None Remove="Net\Platforms\Uwp\**" />
+        <None Remove="Platforms\macOS\**" />
+        <None Remove="Platforms\Tizen\**" />
+        <None Remove="Platforms\tvOS\**" />
+        <None Remove="Platforms\Uwp\**" />
+        <None Remove="Platforms\watchOS\**" />
+        <None Remove="Power\Platforms\macOS\**" />
+        <None Remove="Power\Platforms\Tizen\**" />
+        <None Remove="Power\Platforms\tvOS\**" />
+        <None Remove="Power\Platforms\Uwp\**" />
+        <None Remove="Power\Platforms\watchOS\**" />
+        <None Remove="Settings\Platforms\Tizen\**" />
+        <None Remove="Settings\Platforms\Uwp\**" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="System.Reactive" Version="4.4.1" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.4" />
@@ -44,7 +101,6 @@
     </ItemGroup>
 
     <ItemGroup Condition=" $(TargetFramework.StartsWith('uap')) ">
-        <ProjectReference Include="..\Shiny.Support.Uwp\Shiny.Support.Uwp.csproj" />
         <Compile Include="**\Platforms\Uwp\**\*.cs" />
         <Compile Include="**\Platforms\Shared\**\*.cs" />
     </ItemGroup>
@@ -69,6 +125,20 @@
     <ItemGroup Condition=" $(TargetFramework.StartsWith('xamarin.mac')) ">
         <Compile Include="**\Platforms\*macOS*\**\*.cs" />
         <Reference Include="netstandard" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="IO\Platforms\Uwp\FileSystemImpl.cs" />
+      <Compile Remove="Jobs\Platforms\Uwp\JobManager.cs" />
+      <Compile Remove="Net\Platforms\Uwp\ConnectivityImpl.cs" />
+      <Compile Remove="Platforms\Uwp\EnvironmentImpl.cs" />
+      <Compile Remove="Platforms\Uwp\IBackgroundTaskProcessor.cs" />
+      <Compile Remove="Platforms\Uwp\Permissions.cs" />
+      <Compile Remove="Platforms\Uwp\PlatformExtensions.cs" />
+      <Compile Remove="Platforms\Uwp\UwpShinyAppConnection.cs" />
+      <Compile Remove="Platforms\Uwp\UwpShinyHost.cs" />
+      <Compile Remove="Power\Platforms\Uwp\PowerManagerImpl.cs" />
+      <Compile Remove="Settings\Platforms\Uwp\SettingsImpl.cs" />
     </ItemGroup>
 
 </Project>
