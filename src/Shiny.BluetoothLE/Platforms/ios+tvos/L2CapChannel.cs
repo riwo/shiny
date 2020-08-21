@@ -15,6 +15,7 @@ namespace Shiny.BluetoothLE
         private readonly AsyncManualResetEvent inputStreamEvent = new AsyncManualResetEvent();
         private readonly AsyncManualResetEvent outputStreamEvent = new AsyncManualResetEvent();
         private bool streamEnded;
+        private bool streamError;
 
         public L2CapChannel(CBL2CapChannel nativeChannel)
         {
@@ -56,13 +57,22 @@ namespace Shiny.BluetoothLE
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            this.CheckError();
+            if (this.streamEnded)
+                return 0;
+
             while (!this.nativeChannel.InputStream.HasBytesAvailable())
             {
                 // TODO: Allow cancellation-token for the WaitAsync method
                 cancellationToken.ThrowIfCancellationRequested();
                 await this.inputStreamEvent.WaitAsync().ConfigureAwait(false);
-                if (this.streamEnded)
-                    return 0;
+                var hasBytesAvailable = this.nativeChannel.InputStream.HasBytesAvailable();
+                if (!hasBytesAvailable || this.streamEnded)
+                {
+                    this.CheckError();
+                    if (this.streamError)
+                        return 0;
+                }
             }
 
             this.inputStreamEvent.Reset();
@@ -72,14 +82,25 @@ namespace Shiny.BluetoothLE
 
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            this.CheckError();
+
             while (count > 0)
             {
                 await this.outputStreamEvent.WaitAsync().ConfigureAwait(false);
-                this.inputStreamEvent.Reset();
+                this.outputStreamEvent.Reset();
+
+                if (this.streamEnded)
+                {
+                    this.CheckError();
+                    throw new L2CapException("Cannot write to a closed stream.");
+                }
 
                 var bytesWritten = Convert.ToInt32(this.nativeChannel.OutputStream.Write(buffer, offset, new nuint((uint)count)));
                 if (bytesWritten == 0)
+                {
+                    this.CheckError();
                     return;
+                }
 
                 offset += bytesWritten;
                 count -= bytesWritten;
@@ -112,9 +133,11 @@ namespace Shiny.BluetoothLE
             var streamEvent = e.StreamEvent;
             if (streamEvent.HasFlag(NSStreamEvent.HasBytesAvailable))
                 this.inputStreamEvent.Set();
-            if (streamEvent.HasFlag(NSStreamEvent.EndEncountered))
+            if (streamEvent.HasFlag(NSStreamEvent.EndEncountered) || streamEvent.HasFlag(NSStreamEvent.ErrorOccurred))
             {
                 this.streamEnded = true;
+                if (streamEvent.HasFlag(NSStreamEvent.ErrorOccurred))
+                    this.streamError = true;
                 this.inputStreamEvent.Set();
             }
         }
@@ -122,9 +145,18 @@ namespace Shiny.BluetoothLE
         private void OnOutputStreamEvent(object sender, NSStreamEventArgs e)
         {
             var streamEvent = e.StreamEvent;
-            if (streamEvent.HasFlag(NSStreamEvent.HasSpaceAvailable) || streamEvent.HasFlag(NSStreamEvent.EndEncountered))
+            if (streamEvent.HasFlag(NSStreamEvent.HasSpaceAvailable) || streamEvent.HasFlag(NSStreamEvent.EndEncountered) || streamEvent.HasFlag(NSStreamEvent.ErrorOccurred))
+            {
+                if (streamEvent.HasFlag(NSStreamEvent.ErrorOccurred))
+                    this.streamError = true;
                 this.outputStreamEvent.Set();
+            }
         }
 
+        private void CheckError()
+        {
+            if (this.streamError)
+                throw new L2CapException("The L2CAP channel is in the error state.");
+        }
     }
 }
