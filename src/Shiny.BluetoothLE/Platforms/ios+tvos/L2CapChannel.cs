@@ -66,8 +66,7 @@ namespace Shiny.BluetoothLE
                 // TODO: Allow cancellation-token for the WaitAsync method
                 cancellationToken.ThrowIfCancellationRequested();
                 await this.inputStreamEvent.WaitAsync().ConfigureAwait(false);
-                var hasBytesAvailable = this.nativeChannel.InputStream.HasBytesAvailable();
-                if (!hasBytesAvailable || this.streamEnded)
+                if (this.streamEnded)
                 {
                     this.CheckError();
                     if (this.streamError)
@@ -77,6 +76,14 @@ namespace Shiny.BluetoothLE
 
             this.inputStreamEvent.Reset();
             var bytesRead = Convert.ToInt32(this.nativeChannel.InputStream.Read(buffer, offset, new nuint((uint)count)));
+            if (bytesRead <= 0)
+            {
+                this.streamEnded = true;
+                if (bytesRead < 0)
+                    this.streamError = true;
+                return 0;
+            }
+
             return bytesRead;
         }
 
@@ -131,8 +138,6 @@ namespace Shiny.BluetoothLE
         private void OnInputStreamEvent(object sender, NSStreamEventArgs e)
         {
             var streamEvent = e.StreamEvent;
-            if (streamEvent.HasFlag(NSStreamEvent.HasBytesAvailable))
-                this.inputStreamEvent.Set();
             if (streamEvent.HasFlag(NSStreamEvent.EndEncountered) || streamEvent.HasFlag(NSStreamEvent.ErrorOccurred))
             {
                 this.streamEnded = true;
@@ -140,6 +145,8 @@ namespace Shiny.BluetoothLE
                     this.streamError = true;
                 this.inputStreamEvent.Set();
             }
+            else if (streamEvent.HasFlag(NSStreamEvent.HasBytesAvailable))
+                this.inputStreamEvent.Set();
         }
 
         private void OnOutputStreamEvent(object sender, NSStreamEventArgs e)
