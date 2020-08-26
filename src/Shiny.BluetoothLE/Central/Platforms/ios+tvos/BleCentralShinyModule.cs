@@ -13,7 +13,7 @@ namespace Shiny.BluetoothLE.Central
         public override void Register(IServiceCollection services)
         {
             services.AddSingleton(this.config);
-            services.AddSingleton<CentralContext>();
+            services.AddSingleton<CentralContext>(ctx => new CentralContext(ctx, new BleCentralConfiguration { iOSShowPowerAlert = true, iOSRestoreIdentifier = "com.riwo.topcon.tapfeed" }));
             services.AddSingleton<ICentralManager, CentralManager>();
         }
     }
